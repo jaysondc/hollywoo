@@ -1,0 +1,14 @@
+<resources>
+    <dimen name="app_bar_height">180dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="text_margin">16dp</dimen>
+
+    <!-- Grid Viewe -->
+    <dimen name="grid_padding_left">5dp</dimen>
+    <dimen name="grid_padding_right">5dp</dimen>
+    <dimen name="grid_spacing_horizontal">1dp</dimen>
+    <dimen name="grid_spacing_vertical">1dp</dimen>
+
+    <!-- Detail View -->
+    <dimen name="detail_app_bar_height">350dp</dimen>
+</resources>

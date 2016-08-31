@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">HOLLYWOO</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_movie_detail">MovieDetailActivity</string>
+
+    <!-- API Interface Strings -->
+    <string name="URL_POPULARITY">http://api.themoviedb.org/3/movie/popular?</string>
+    <string name="URL_RATING">http://api.themoviedb.org/3/movie/top_rated?</string>
+    <string name="API_KEY">api_key=</string>
+    <string name="LANGUAGE">language=</string>
+    <string name="BASE_IMG_URL">http://image.tmdb.org/t/p/</string>
+    <string name="MOVIEDB_KEY">[INSERT API KEY]</string>
+
+    <!-- Extra String Keys -->
+    <string name="EXTRA_MOVIE_ID">EXTRA_MOVIE_ID</string>
+    <string name="URL_MOVIE">http://api.themoviedb.org/3/movie/</string>
+    <string name="IMG_SIZE_342">w342</string>
+    <string name="IMG_SIZE_500">w500</string>
+    <string name="IMG_SIZE_780">w780</string>
+    <string name="IMG_SIZE_ORIGINAL">original</string>
+</resources>
