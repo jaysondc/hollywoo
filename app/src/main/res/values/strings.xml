@@ -9,7 +9,6 @@
     <string name="API_KEY">api_key=</string>
     <string name="LANGUAGE">language=</string>
     <string name="BASE_IMG_URL">http://image.tmdb.org/t/p/</string>
-    <string name="MOVIEDB_KEY">[INSERT API KEY]</string>
 
     <!-- Extra String Keys -->
     <string name="EXTRA_MOVIE_ID">EXTRA_MOVIE_ID</string>
@@ -18,4 +17,9 @@
     <string name="IMG_SIZE_500">w500</string>
     <string name="IMG_SIZE_780">w780</string>
     <string name="IMG_SIZE_ORIGINAL">original</string>
+
+    <!-- UI Strings -->
+    <string name="SORT_POPULARITY_SNACKBAR">Sort by POPULARITY</string>
+    <string name="SORT_RATING_SNACKBAR">Sort by RATING</string>
+    <string name="NO_CONNECTION">No connection.</string>
 </resources>

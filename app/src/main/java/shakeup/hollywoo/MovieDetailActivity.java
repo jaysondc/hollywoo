@@ -58,7 +58,7 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         // Build movie request URL
         String url = getString(R.string.URL_MOVIE) + movieID + "?" +
-                getString(R.string.API_KEY) + getString(R.string.MOVIEDB_KEY);
+                getString(R.string.API_KEY) + BuildConfig.MOVIE_DB_API_KEY;
 
         Log.d(LOG_TAG, "URL: " + url);
 

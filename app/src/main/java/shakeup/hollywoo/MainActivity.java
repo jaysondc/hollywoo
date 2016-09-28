@@ -1,6 +1,9 @@
 package shakeup.hollywoo;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -60,7 +63,8 @@ public class MainActivity extends AppCompatActivity {
             mGridView.setAdapter(new MovieAdapter());
         } else {
             // Restore adapter from saved state
-            mGridView.setAdapter((MovieAdapter) savedInstanceState.getParcelable(BUNDLE_MOVIE_ADAPTER));
+            mGridView.setAdapter((MovieAdapter)
+                    savedInstanceState.getParcelable(BUNDLE_MOVIE_ADAPTER));
         }
 
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
@@ -80,21 +84,18 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Instantiate the RequestQueue from the singleton VolleyRequestManager
-        final RequestQueue queue = VolleyRequestManager.getInstance(this.getApplicationContext()).getRequestQueue();
+        final RequestQueue queue = VolleyRequestManager.getInstance(
+                this.getApplicationContext()).getRequestQueue();
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // Toggle sort on FAB click
-                if(SORT_BY == POPULARITY){
+                if(SORT_BY.equals(POPULARITY)){
                     SORT_BY = RATING;
-                    Snackbar.make(view, "Sort by RATING" , Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
                     updateMovies(queue);
-                } else if(SORT_BY == RATING){
+                } else if(SORT_BY.equals(RATING)){
                     SORT_BY = POPULARITY;
-                    Snackbar.make(view, "Sort by POPULARITY" , Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
                     updateMovies(queue);
                 }
             }
@@ -105,44 +106,73 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public boolean isNetworkAvailable(){
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+
     private void updateMovies(RequestQueue queue){
-        // Create URL String
-        String url = "";
-        if(SORT_BY == POPULARITY){
-            url = getString(R.string.URL_POPULARITY) + getString(R.string.API_KEY) + BuildConfig.MOVIE_DB_API_KEY;
-        } else if (SORT_BY == RATING){
-            url = getString(R.string.URL_RATING) + getString(R.string.API_KEY) + BuildConfig.MOVIE_DB_API_KEY;
-        }
+        Log.d(LOG_TAG, "Connection test = " + isNetworkAvailable());
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
-        Log.d(LOG_TAG, "URL: " + url);
-
-        // Build JSONArray Request for movies
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONObject>(){
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Log.d(LOG_TAG, "Response received.");
-                        try {
-                            // Store results
-                            mResults = response.getJSONArray("results");
-                            // Update adapter with results
-                            MovieAdapter adapter = (MovieAdapter) mGridView.getAdapter();
-                            adapter.setResultsArray(mResults);
-                            adapter.notifyDataSetChanged();
-                        }catch(JSONException error){
-                            Log.d(LOG_TAG, "JSON Error: " + error);
-                        }
-
-                    }
-                }, new Response.ErrorListener(){
-            @Override
-            public void onErrorResponse(VolleyError error){
-                Log.d(LOG_TAG, "Response error.");
-                // error handling stuff
+        if(!isNetworkAvailable()){
+            Snackbar.make(fab,
+                    getResources().getString(R.string.NO_CONNECTION),
+                    Snackbar.LENGTH_LONG)
+            .show();
+        } else {
+            // Create URL String
+            String url = "";
+            if (SORT_BY.equals(POPULARITY)) {
+                url = getString(R.string.URL_POPULARITY) +
+                        getString(R.string.API_KEY) +
+                        BuildConfig.MOVIE_DB_API_KEY;
+                Snackbar.make(fab,
+                        getResources().getString(R.string.SORT_POPULARITY_SNACKBAR),
+                        Snackbar.LENGTH_LONG)
+                .show();
+            } else if (SORT_BY.equals(RATING)) {
+                url = getString(R.string.URL_RATING) +
+                        getString(R.string.API_KEY) +
+                        BuildConfig.MOVIE_DB_API_KEY;
+                Snackbar.make(fab,
+                        getResources().getString(R.string.SORT_RATING_SNACKBAR),
+                        Snackbar.LENGTH_LONG)
+                .show();
             }
-        });
-        // Launch request
-        queue.add(jsonObjectRequest);
+            Log.d(LOG_TAG, "URL: " + url);
+
+            // Build JSONArray Request for movies
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            Log.d(LOG_TAG, "Response received.");
+                            try {
+                                // Store results
+                                mResults = response.getJSONArray("results");
+                                // Update adapter with results
+                                MovieAdapter adapter = (MovieAdapter) mGridView.getAdapter();
+                                adapter.setResultsArray(mResults);
+                                adapter.notifyDataSetChanged();
+                            } catch (JSONException error) {
+                                Log.d(LOG_TAG, "JSON Error: " + error);
+                            }
+
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.d(LOG_TAG, "Response error.");
+                    // error handling stuff
+                }
+            });
+            // Launch request
+            queue.add(jsonObjectRequest);
+        }
     }
 
     /**
@@ -242,7 +272,8 @@ public class MainActivity extends AppCompatActivity {
             parcel.writeString(mResults.toString());
         }
 
-        public final Parcelable.Creator<MovieAdapter> CREATOR = new Parcelable.Creator<MovieAdapter>(){
+        public final Parcelable.Creator<MovieAdapter> CREATOR =
+                new Parcelable.Creator<MovieAdapter>(){
             @Override
             public MovieAdapter createFromParcel(Parcel parcel) {
                 return new MovieAdapter(parcel);
