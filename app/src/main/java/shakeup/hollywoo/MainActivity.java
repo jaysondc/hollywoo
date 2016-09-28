@@ -109,9 +109,9 @@ public class MainActivity extends AppCompatActivity {
         // Create URL String
         String url = "";
         if(SORT_BY == POPULARITY){
-            url = getString(R.string.URL_POPULARITY) + getString(R.string.API_KEY) + getString(R.string.MOVIEDB_KEY);
+            url = getString(R.string.URL_POPULARITY) + getString(R.string.API_KEY) + BuildConfig.MOVIE_DB_API_KEY;
         } else if (SORT_BY == RATING){
-            url = getString(R.string.URL_RATING) + getString(R.string.API_KEY) + getString(R.string.MOVIEDB_KEY);
+            url = getString(R.string.URL_RATING) + getString(R.string.API_KEY) + BuildConfig.MOVIE_DB_API_KEY;
         }
 
         Log.d(LOG_TAG, "URL: " + url);
