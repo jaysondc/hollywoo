@@ -7,7 +7,7 @@ This app uses The Movie Database API. Get an api key from
 Add the line
 >movieDbApiKey="{your_api_key}"
 
-to a build.gradle file in the root directory.
+to a gradle.properties file in the root directory.
 
 MinSdk is 16 (4.1 Jellybean)
 
