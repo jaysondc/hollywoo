@@ -4,9 +4,10 @@ This app uses The Movie Database API. Get an api key from
 
 >https://www.themoviedb.org/
 
-Add it to line 12 of.
+Add the line
+>movieDbApiKey="{your_api_key}"
 
->https://github.com/jaysonthepirate/hollywoo/blob/master/app/src/main/res/values/strings.xml
+to a build.gradle file in the root directory.
 
 MinSdk is 16 (4.1 Jellybean)
 
