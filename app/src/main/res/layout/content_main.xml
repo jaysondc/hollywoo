@@ -12,10 +12,7 @@
     android:horizontalSpacing="@dimen/grid_spacing_horizontal"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
     <!--
-    tools:context="shakeup.hollywoo.MainActivity"
-    tools:showIn="@layout/activity_main"
+    TODO: Show empty view when there are no results
     -->
-
-
 
 </GridView>

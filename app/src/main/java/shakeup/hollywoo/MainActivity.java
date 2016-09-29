@@ -168,6 +168,10 @@ public class MainActivity extends AppCompatActivity {
                 public void onErrorResponse(VolleyError error) {
                     Log.d(LOG_TAG, "Response error.");
                     // error handling stuff
+                    Snackbar.make(findViewById(R.id.fab),
+                            getResources().getString(R.string.NETWORK_ERROR),
+                            Snackbar.LENGTH_LONG)
+                            .show();
                 }
             });
             // Launch request
