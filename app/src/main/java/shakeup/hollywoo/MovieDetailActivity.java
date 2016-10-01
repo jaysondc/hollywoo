@@ -1,5 +1,6 @@
 package shakeup.hollywoo;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -40,7 +41,8 @@ public class MovieDetailActivity extends AppCompatActivity {
     TextView mRating;
     TextView mReleaseDate;
     TextView mSynopsis;
-    LinearLayout mTrailerLayout;
+    LinearLayout mMediaLayout;
+    LinearLayout mReviewLayout;
 
     static final int TRAILER_HEIGHT = 128;
     static final int TRAILER_WIDTH = 228;
@@ -213,7 +215,7 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     private void updateVideos(){
 
-        mTrailerLayout = (LinearLayout) findViewById(R.id.detail_trailer_layout);
+        mMediaLayout = (LinearLayout) findViewById(R.id.detail_media_layout);
         ArrayList<String> movieKeys = new ArrayList<String>();
 
         if(mVideos != null) {
@@ -229,13 +231,60 @@ public class MovieDetailActivity extends AppCompatActivity {
             }
         }
         for(String trailerKey : movieKeys){
-            mTrailerLayout.addView(createYouTubeView(trailerKey,
+            mMediaLayout.addView(createYouTubeView(trailerKey,
                     TRAILER_WIDTH, TRAILER_HEIGHT));
         }
     }
 
     private void updateReviews(){
+        mReviewLayout = (LinearLayout) findViewById(R.id.detail_review_layout);
 
+        if(mReviews != null) {
+            // Parse review data
+            try {
+                JSONArray jReviews = mReviews.getJSONArray("results");
+                for(int i = 0; i < jReviews.length(); i++){
+                    JSONObject oReview = jReviews.getJSONObject(i);
+
+                    // Setup author view
+                    final String author = oReview.getString("author");
+                    TextView authorView = new TextView(this);
+                    LinearLayout.LayoutParams myParams = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    authorView.setLayoutParams(myParams);
+                    authorView.setTextAppearance(R.style.paragraphText);
+                    authorView.setText(author);
+                    mReviewLayout.addView(authorView);
+
+                    // Setup content view
+                    String content = oReview.getString("content");
+                    String paragraphs[] = content.split("\\r?\\n");
+                    String firstParagraph = paragraphs[0];
+                    final String url = oReview.getString("url");
+                    TextView reviewView = new TextView(this);
+                    myParams = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    reviewView.setLayoutParams(myParams);
+                    reviewView.setTextAppearance(R.style.paragraphText);
+                    reviewView.setText(firstParagraph);
+                    reviewView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                            startActivity(intent);
+                        }
+                    });
+                    mReviewLayout.addView(reviewView);
+
+                }
+            } catch (JSONException error) {
+                Log.d(LOG_TAG, "JSON Error: " + error);
+            }
+        }
     }
 
     /**

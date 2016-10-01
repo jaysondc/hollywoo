@@ -15,7 +15,8 @@
         <android.support.v7.widget.CardView
             android:id="@+id/card_view_details"
             android:layout_gravity="top"
-            android:layout_marginTop="@dimen/card_margin_top"
+            android:layout_marginTop="@dimen/card_margin_between"
+            android:layout_marginBottom="@dimen/card_margin_between"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <RelativeLayout
@@ -51,11 +52,11 @@
                     android:id="@+id/detail_genres"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/text_margin_vertical"
                     android:layout_below="@id/detail_release_runtime"
+                    android:layout_marginTop="@dimen/text_margin_vertical"
                     android:textAppearance="?android:textAppearanceSmall"
                     android:textSize="12sp"
-                    tools:text="Action, Adventure, Western"/>
+                    tools:text="Action, Adventure, Western" />
 
                 <TextView
                     android:id="@+id/detail_user_rating"
@@ -81,50 +82,15 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_below="@id/detail_heading_divider"
-                    android:fontFamily="sans-serif-condensed"
-                    android:textSize="14sp"
+                    style="@style/paragraphText"
                     tools:text="A big screen remake of John Sturges' classic western The Magnificent Seven, itself a remake of Akira Kurosawa's Seven Samurai. Seven gun men in the old west gradually come together to help a poor village aigainst savage theives."/>
 
             </RelativeLayout>
         </android.support.v7.widget.CardView>
 
-        <android.support.v7.widget.CardView
-            android:id="@+id/card_view_trailers"
-            android:layout_gravity="center"
-            android:layout_marginTop="@dimen/card_margin_top"
-            android:layout_marginBottom="@dimen/card_margin_top"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="@dimen/card_margin"
-                android:paddingBottom="@dimen/card_margin"
-                android:paddingLeft="@dimen/card_margin"
-                android:paddingRight="@dimen/card_margin">
-                <LinearLayout
-                    android:id="@+id/detail_trailer_layout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-                    <FrameLayout
-                        android:layout_width="228dp"
-                        android:layout_height="128dp"
-                        android:visibility="gone"
-                        tools:visibility="visible">
-                        <ImageView
-                            android:layout_width="228dp"
-                            android:layout_height="128dp"
-                            android:scaleType="fitCenter"
-                            android:src="@drawable/trailer1"/>
-                        <ImageView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:src="@android:drawable/ic_media_play"/>
-                    </FrameLayout>
-                </LinearLayout>
-            </HorizontalScrollView>
-        </android.support.v7.widget.CardView>
+        <include layout="@layout/content_media_detail" />
+
+        <include layout="@layout/content_review_detail" />
 
     </LinearLayout>
 

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_view_reviews"
+    android:layout_gravity="center"
+    android:layout_marginBottom="@dimen/card_margin_between"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:showIn="@layout/content_movie_detail">
+        <LinearLayout
+            android:id="@+id/detail_review_layout"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Frank Ochieng"
+                android:visibility="gone"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                tools:text="The western genre has gradually been making its way back into the cinematic fold. Recent dusty trail ditties such as David McKenzie's modern-day Hell or High Water or Quentin Tarantino's The Hateful Eight have proven to be recent..."/>
+        </LinearLayout>
+</android.support.v7.widget.CardView>
