@@ -1,15 +1,13 @@
 package shakeup.hollywoo;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -43,9 +41,6 @@ public class MovieDetailActivity extends AppCompatActivity {
     TextView mSynopsis;
     LinearLayout mMediaLayout;
     LinearLayout mReviewLayout;
-
-    static final int TRAILER_HEIGHT = 128;
-    static final int TRAILER_WIDTH = 228;
 
     private final String LOG_TAG = getClass().getSimpleName();
 
@@ -231,13 +226,13 @@ public class MovieDetailActivity extends AppCompatActivity {
             }
         }
         for(String trailerKey : movieKeys){
-            mMediaLayout.addView(createYouTubeView(trailerKey,
-                    TRAILER_WIDTH, TRAILER_HEIGHT));
+            mMediaLayout.addView(createYouTubeView(trailerKey));
         }
     }
 
     private void updateReviews(){
         mReviewLayout = (LinearLayout) findViewById(R.id.detail_review_layout);
+        LayoutInflater inflater = getLayoutInflater();
 
         if(mReviews != null) {
             // Parse review data
@@ -246,39 +241,37 @@ public class MovieDetailActivity extends AppCompatActivity {
                 for(int i = 0; i < jReviews.length(); i++){
                     JSONObject oReview = jReviews.getJSONObject(i);
 
+                    // Get new review view
+                    LinearLayout reviewView = (LinearLayout) inflater.inflate(
+                            R.layout.detail_item_review, null);
+
                     // Setup author view
                     final String author = oReview.getString("author");
-                    TextView authorView = new TextView(this);
-                    LinearLayout.LayoutParams myParams = new LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT
-                    );
-                    authorView.setLayoutParams(myParams);
-                    authorView.setTextAppearance(R.style.paragraphText);
+                    TextView authorView = (TextView) reviewView.findViewById(R.id.review_author);
                     authorView.setText(author);
-                    mReviewLayout.addView(authorView);
 
                     // Setup content view
                     String content = oReview.getString("content");
                     String paragraphs[] = content.split("\\r?\\n");
                     String firstParagraph = paragraphs[0];
+                    TextView reviewContentView = (TextView) reviewView.findViewById(R.id.review_text);
+                    reviewContentView.setText(firstParagraph);
+
                     final String url = oReview.getString("url");
-                    TextView reviewView = new TextView(this);
-                    myParams = new LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT
-                    );
-                    reviewView.setLayoutParams(myParams);
-                    reviewView.setTextAppearance(R.style.paragraphText);
-                    reviewView.setText(firstParagraph);
-                    reviewView.setOnClickListener(new View.OnClickListener() {
+                    reviewContentView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                             startActivity(intent);
                         }
                     });
+
                     mReviewLayout.addView(reviewView);
+
+                    // Add divider
+                    if(i < jReviews.length()-1){
+                        inflater.inflate(R.layout.horizontal_divider, mReviewLayout, true);
+                    }
 
                 }
             } catch (JSONException error) {
@@ -292,49 +285,19 @@ public class MovieDetailActivity extends AppCompatActivity {
      * a clickable ImageView that takes you to the video inside YouTube.
      *
      * @param url The YouTube video ID
-     * @param width Width of the ImageView in DP
-     * @param height Height of the ImageView in DP
      * @return Returns an ImageView object
      */
-    private FrameLayout createYouTubeView(String videoId, int width, int height){
+    private FrameLayout createYouTubeView(String videoId){
         // Populate trailers
         final String imgUrl = "http://img.youtube.com/vi/" + videoId + "/mqdefault.jpg";
         final String videoUrl = "https://www.youtube.com/watch?v=" + videoId;
 
-        FrameLayout youTubeView = new FrameLayout(this);
-        ImageView thumbnailView = new ImageView(this);
-        ImageView playButtonView = new ImageView(this);
+        LayoutInflater inflater = getLayoutInflater();
+        FrameLayout youTubeView = (FrameLayout) inflater.inflate(R.layout.detail_item_video, null);
 
-        // Convert width and height to DP
-        DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        int widthDp = (width * metrics.densityDpi) / DisplayMetrics.DENSITY_DEFAULT;
-        int heightDp = (height * metrics.densityDpi) / DisplayMetrics.DENSITY_DEFAULT;
+        ImageView thumbnailView = (ImageView) youTubeView.findViewById(R.id.media_thumbnail);
 
-        // Set up thumbnail
-        FrameLayout.LayoutParams frameLayoutParams =
-                new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT);
-        thumbnailView.setLayoutParams(frameLayoutParams);
-        // Remove this dependency to make this more reusable
         Glide.with(this).load(imgUrl).into(thumbnailView);
-        thumbnailView.setImageResource(R.drawable.trailer0);
-        thumbnailView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-
-        // Set up play button
-        frameLayoutParams =
-                new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT,
-                        FrameLayout.LayoutParams.WRAP_CONTENT);
-        frameLayoutParams.gravity = Gravity.CENTER;
-        playButtonView.setLayoutParams(frameLayoutParams);
-        playButtonView.setImageResource(android.R.drawable.ic_media_play);
-
-        // Set up Frame
-        LinearLayout.LayoutParams layoutParams =
-                new LinearLayout.LayoutParams(widthDp, heightDp);
-        youTubeView.setLayoutParams(layoutParams);
-        youTubeView.addView(thumbnailView);
-        youTubeView.addView(playButtonView);
 
         youTubeView.setOnClickListener(new View.OnClickListener() {
             @Override
