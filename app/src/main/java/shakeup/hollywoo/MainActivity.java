@@ -33,6 +33,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import shakeup.hollywoo.data.DbHelper;
+import shakeup.hollywoo.data.MovieRecord;
+
 /**
  * Created by Jayson Dela Cruz 8/30/2016
  *
@@ -232,9 +235,11 @@ public class MainActivity extends AppCompatActivity {
 
             View movieLayout = convertView;
             ImageView imageView;
+            ImageView watchedView;
+            ImageView favoriteView;
 
+            // Parse movie data
             if(mResultsArray != null) {
-                // Parse movie data
                 try {
                     JSONObject movie = (JSONObject) mResultsArray.get(position);
                     String title = movie.getString("title");
@@ -251,6 +256,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
+            // Retrieve movie from local db
+            final MovieRecord movieRecord = DbHelper.getMovie(mMovieID);
+
             // Get recycled item
             if (convertView == null) {
                 // if it's not recycled, assign new image and text
@@ -259,8 +267,53 @@ public class MainActivity extends AppCompatActivity {
             // Put mMovieID in tag for use in details screen
             movieLayout.setTag(mMovieID);
 
+            // Set image
             imageView = (ImageView) movieLayout.findViewById(R.id.movie_poster);
             Glide.with(getApplicationContext()).load(mPosterUrl).into(imageView);
+
+            // Set watched
+            watchedView = (ImageView) movieLayout.findViewById(R.id.grid_watched);
+            if(movieRecord.watched){
+                watchedView.setAlpha(Float.valueOf("1"));
+            } else {
+                watchedView.setAlpha(Float.valueOf("0.25"));
+            }
+            watchedView.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View view) {
+                    if (movieRecord.watched){
+                        // true -> false
+                        movieRecord.watched = false;
+                        view.setAlpha(Float.valueOf("0.25"));
+                    } else {
+                        movieRecord.watched = true;
+                        view.setAlpha(Float.valueOf("1"));
+                    }
+                    movieRecord.save();
+                }
+            });
+
+            // Set favorite
+            favoriteView = (ImageView) movieLayout.findViewById(R.id.grid_favorite);
+            if(movieRecord.favorite){
+                favoriteView.setAlpha(Float.valueOf("1"));
+            } else {
+                favoriteView.setAlpha(Float.valueOf("0.25"));
+            }
+            favoriteView.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View view) {
+                    if (movieRecord.favorite){
+                        // true -> false
+                        movieRecord.favorite = false;
+                        view.setAlpha(Float.valueOf("0.25"));
+                    } else {
+                        movieRecord.favorite = true;
+                        view.setAlpha(Float.valueOf("1"));
+                    }
+                    movieRecord.save();
+                }
+            });
 
             return movieLayout;
         }

@@ -146,7 +146,6 @@ public class MovieDetailActivity extends AppCompatActivity {
         queue.add(videoRequest);
         queue.add(reviewRequest);
 
-
     }
 
     private void updateUI(){
