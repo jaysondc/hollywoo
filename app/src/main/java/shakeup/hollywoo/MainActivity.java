@@ -286,6 +286,7 @@ public class MainActivity extends AppCompatActivity {
                         movieRecord.watched = false;
                         view.setAlpha(Float.valueOf("0.25"));
                     } else {
+                        // false -> true
                         movieRecord.watched = true;
                         view.setAlpha(Float.valueOf("1"));
                     }
@@ -308,6 +309,7 @@ public class MainActivity extends AppCompatActivity {
                         movieRecord.favorite = false;
                         view.setAlpha(Float.valueOf("0.25"));
                     } else {
+                        // false -> true
                         movieRecord.favorite = true;
                         view.setAlpha(Float.valueOf("1"));
                     }

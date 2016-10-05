@@ -27,6 +27,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import shakeup.hollywoo.data.DbHelper;
+import shakeup.hollywoo.data.MovieRecord;
+
 public class MovieDetailActivity extends AppCompatActivity {
     private Long movieID;
     private JSONObject mMovie;
@@ -41,6 +44,8 @@ public class MovieDetailActivity extends AppCompatActivity {
     TextView mSynopsis;
     LinearLayout mMediaLayout;
     LinearLayout mReviewLayout;
+    ImageView mFavoritesImage;
+    ImageView mWatchImage;
 
     private final String LOG_TAG = getClass().getSimpleName();
 
@@ -156,7 +161,8 @@ public class MovieDetailActivity extends AppCompatActivity {
         mRating = (TextView) findViewById(R.id.detail_user_rating);
         mReleaseDate = (TextView) findViewById(R.id.detail_release_runtime);
         mSynopsis = (TextView) findViewById(R.id.detail_synopsis);
-
+        mFavoritesImage = (ImageView) findViewById(R.id.detail_favorites);
+        mWatchImage = (ImageView) findViewById(R.id.detail_watched);
 
         // Update background image and details
         String rating = null;
@@ -197,6 +203,9 @@ public class MovieDetailActivity extends AppCompatActivity {
             }
         }
 
+        // Get local movie record
+        final MovieRecord movieRecord = DbHelper.getMovie(movieID);
+
         // Update header image
         Glide.with(this).load(posterUrl).into(mHeaderImage);
         // Update text fields
@@ -205,6 +214,55 @@ public class MovieDetailActivity extends AppCompatActivity {
         mGenres.setText(genres);
         mReleaseDate.setText(releaseRuntime);
         mSynopsis.setText(synopsis);
+
+        // Update Favorites
+        if(movieRecord.favorite){
+            mFavoritesImage.setImageResource(R.drawable.ic_favorite_black_36dp);
+        } else {
+            mFavoritesImage.setImageResource(R.drawable.ic_favorite_border_black_36dp);
+        }
+        mFavoritesImage.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                ImageView myView = (ImageView) view;
+                if (movieRecord.favorite){
+                    // true -> false
+                    movieRecord.favorite = false;
+                    myView.setImageResource(R.drawable.ic_favorite_border_black_36dp);
+                } else {
+                    // false -> true
+                    movieRecord.favorite = true;
+                    myView.setImageResource(R.drawable.ic_favorite_black_36dp);
+                }
+                movieRecord.save();
+                //TODO Notify gridview that data has changed
+            }
+        });
+
+
+        // Update watch
+        if(movieRecord.watched){
+            mWatchImage.setImageResource(R.drawable.ic_visibility_black_36dp);
+        } else {
+            mWatchImage.setImageResource(R.drawable.ic_visibility_off_black_36dp);
+        }
+        mWatchImage.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                ImageView myView = (ImageView) view;
+                if (movieRecord.watched){
+                    // true -> false
+                    movieRecord.watched = false;
+                    myView.setImageResource(R.drawable.ic_visibility_off_black_36dp);
+                } else {
+                    // false -> true
+                    movieRecord.watched = true;
+                    myView.setImageResource(R.drawable.ic_visibility_black_36dp);
+                }
+                movieRecord.save();
+                //TODO Notify gridview that data has changed
+            }
+        });
     }
 
     private void updateVideos(){
