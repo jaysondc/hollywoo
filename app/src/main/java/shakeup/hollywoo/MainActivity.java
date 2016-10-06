@@ -257,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             // Retrieve movie from local db
-            final MovieRecord movieRecord = DbHelper.getMovie(mMovieID);
+            final MovieRecord movieRecord = DbHelper.getMovie(mMovieID, mPosterUrl);
 
             // Get recycled item
             if (convertView == null) {

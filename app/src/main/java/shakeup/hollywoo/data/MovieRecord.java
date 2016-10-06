@@ -12,13 +12,22 @@ public class MovieRecord extends SugarRecord {
     public long movieId;
     public boolean favorite;
     public boolean watched;
+    public String imageUrl;
 
     public MovieRecord(){
+    }
+
+    public MovieRecord(Long movieId, boolean favorite, boolean watched, String imageUrl){
+        this.movieId = movieId;
+        this.favorite = favorite;
+        this.watched = watched;
+        this.imageUrl = imageUrl;
     }
 
     public MovieRecord(Long movieId, boolean favorite, boolean watched){
         this.movieId = movieId;
         this.favorite = favorite;
         this.watched = watched;
+        this.imageUrl = "http://quartersnacks.com/wp-content/plugins/wd-instagram-feed/images/missing.png;";
     }
 }

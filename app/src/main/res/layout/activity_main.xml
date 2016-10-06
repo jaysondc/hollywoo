@@ -2,6 +2,7 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
@@ -24,12 +25,42 @@
 
     <include layout="@layout/content_main" />
 
+    <com.github.clans.fab.FloatingActionMenu
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        fab:menu_icon="@drawable/ic_filter_variant_white_24dp"
+        android:layout_gravity="bottom|end">
+
+        <com.github.clans.fab.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:menu_icon="@drawable/ic_filter_variant_white_24dp"
+            fab:fab_size="mini"
+            fab:fab_label="Favorites"/>
+        <com.github.clans.fab.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:menu_icon="@drawable/ic_filter_variant_white_24dp"
+            fab:fab_size="mini"
+            fab:fab_label="Most Popular"/>
+        <com.github.clans.fab.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:menu_icon="@drawable/ic_filter_variant_white_24dp"
+            fab:fab_size="mini"
+            fab:fab_label="Highest Rated"/>
+
+    </com.github.clans.fab.FloatingActionMenu>
+
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:layout_margin="@dimen/fab_margin"
         android:src="@drawable/ic_filter_variant_white_48dp"
-        android:layout_gravity="bottom|end" />
+        android:layout_gravity="bottom|end"
+        />
 
 </android.support.design.widget.CoordinatorLayout>

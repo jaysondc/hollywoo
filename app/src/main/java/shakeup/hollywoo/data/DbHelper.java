@@ -1,7 +1,6 @@
 package shakeup.hollywoo.data;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.orm.SugarContext;
 
@@ -21,14 +20,35 @@ public class DbHelper {
      * @param movieId The MovieDB id of the movie.
      * @return A single movie entity from the database.
      */
-    public static MovieRecord getMovie(Long movieId){
+    public static MovieRecord getMovie(Long movieId, String imgUrl){
 
         ArrayList<MovieRecord> movieRecord = (ArrayList<MovieRecord>) MovieRecord.find(
                 MovieRecord.class,
                 "MOVIE_ID = ?", Long.toString(movieId));
 
         List<MovieRecord> allRecords = MovieRecord.listAll(MovieRecord.class);
-        Log.i("DbHelper", "Num of movie records: " + allRecords.size());
+
+        //Log.i("DbHelper", "Num of movie records: " + allRecords.size());
+
+        if (movieRecord.isEmpty()){
+            // Create movie and add it to database
+            MovieRecord myMovie = new MovieRecord(movieId, false, false, imgUrl);
+            myMovie.save();
+            return myMovie;
+        } else {
+            // Return the movie
+            return movieRecord.get(0);
+        }
+    }
+
+    public static MovieRecord getMovie(Long movieId){
+        ArrayList<MovieRecord> movieRecord = (ArrayList<MovieRecord>) MovieRecord.find(
+                MovieRecord.class,
+                "MOVIE_ID = ?", Long.toString(movieId));
+
+        List<MovieRecord> allRecords = MovieRecord.listAll(MovieRecord.class);
+
+        //Log.i("DbHelper", "Num of movie records: " + allRecords.size());
 
         if (movieRecord.isEmpty()){
             // Create movie and add it to database
