@@ -33,13 +33,6 @@
         android:layout_gravity="bottom|end">
 
         <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/fab_filter_favorites"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_filter_variant_white_18dp"
-            fab:fab_size="mini"
-            fab:fab_label="Favorites"/>
-        <com.github.clans.fab.FloatingActionButton
             android:id="@+id/fab_filter_popular"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -53,17 +46,13 @@
             android:src="@drawable/ic_filter_variant_white_18dp"
             fab:fab_size="mini"
             fab:fab_label="Highest Rated"/>
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab_filter_favorites"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_filter_variant_white_18dp"
+            fab:fab_size="mini"
+            fab:fab_label="Favorites"/>
     </com.github.clans.fab.FloatingActionMenu>
-
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_filter_variant_white_48dp"
-        android:layout_gravity="bottom|end"
-        />
 
 </android.support.design.widget.CoordinatorLayout>

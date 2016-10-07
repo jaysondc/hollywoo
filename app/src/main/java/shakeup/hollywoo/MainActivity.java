@@ -37,8 +37,6 @@ import java.util.ArrayList;
 import shakeup.hollywoo.data.DbHelper;
 import shakeup.hollywoo.data.MovieRecord;
 
-import static shakeup.hollywoo.R.id.fab;
-
 /**
  * Created by Jayson Dela Cruz 8/30/2016
  *
@@ -126,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(LOG_TAG, "Connection test = " + isNetworkAvailable());
 
-        com.github.clans.fab.FloatingActionMenu fabMenu =
+        final com.github.clans.fab.FloatingActionMenu fabMenu =
                 (com.github.clans.fab.FloatingActionMenu) findViewById(R.id.fab_filter_menu);
 
         if(!isNetworkAvailable()){
@@ -168,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
 
             if(SORT_BY.equals(FAVORITES)){
                 // For favorites, load the data locally
-                ArrayList<MovieRecord> favoriteMovies = DbHelper.getAllMovies();
+                ArrayList<MovieRecord> favoriteMovies = DbHelper.getFavorites();
                 MovieAdapter adapter = (MovieAdapter) mGridView.getAdapter();
                 adapter.setMovieRecordArray(favoriteMovies);
                 adapter.notifyDataSetChanged();
@@ -198,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         Log.d(LOG_TAG, "Response error.");
                         // error handling stuff
-                        Snackbar.make(findViewById(fab),
+                        Snackbar.make(fabMenu,
                                 getResources().getString(R.string.NETWORK_ERROR),
                                 Snackbar.LENGTH_LONG)
                                 .show();
@@ -227,7 +225,6 @@ public class MainActivity extends AppCompatActivity {
         private final LayoutInflater mInflater;
         private JSONArray mResultsArray;
         private ArrayList<MovieRecord> mMovieRecordArray;
-        private MovieRecord mMovieRecord;
 
         public MovieAdapter() {
             mResultsArray = mResults;
@@ -275,12 +272,13 @@ public class MainActivity extends AppCompatActivity {
             ImageView imageView;
             ImageView watchedView;
             ImageView favoriteView;
+            final MovieRecord movieRecord;
 
             if(SORT_BY.equals(FAVORITES)){
                 // Retrieve the data from the favorite movie array
-                mMovieRecord = mMovieRecordArray.get(position);
-                String posterPath = mMovieRecord.imageUrl;
-                mMovieID = mMovieRecord.movieId;
+                movieRecord = mMovieRecordArray.get(position);
+                mPosterUrl = movieRecord.imageUrl;
+                mMovieID = movieRecord.movieId;
 
             } else {
                 // Parse movie data from the JSONArray
@@ -301,9 +299,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 // Retrieve movie from local db and update image
-                mMovieRecord = DbHelper.getMovie(mMovieID);
-                mMovieRecord.imageUrl = mPosterUrl;
-                mMovieRecord.save();
+                movieRecord = DbHelper.getMovie(mMovieID);
+                movieRecord.imageUrl = mPosterUrl;
+                movieRecord.save();
             }
 
             // Get recycled item
@@ -320,7 +318,7 @@ public class MainActivity extends AppCompatActivity {
 
             // Set watched
             watchedView = (ImageView) movieLayout.findViewById(R.id.grid_watched);
-            if(mMovieRecord.watched){
+            if(movieRecord.watched){
                 watchedView.setAlpha(Float.valueOf("1"));
             } else {
                 watchedView.setAlpha(Float.valueOf("0.25"));
@@ -328,22 +326,22 @@ public class MainActivity extends AppCompatActivity {
             watchedView.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View view) {
-                    if (mMovieRecord.watched){
+                    if (movieRecord.watched){
                         // true -> false
-                        mMovieRecord.watched = false;
+                        movieRecord.watched = false;
                         view.setAlpha(Float.valueOf("0.25"));
                     } else {
                         // false -> true
-                        mMovieRecord.watched = true;
+                        movieRecord.watched = true;
                         view.setAlpha(Float.valueOf("1"));
                     }
-                    mMovieRecord.save();
+                    movieRecord.save();
                 }
             });
 
             // Set favorite
             favoriteView = (ImageView) movieLayout.findViewById(R.id.grid_favorite);
-            if(mMovieRecord.favorite){
+            if(movieRecord.favorite){
                 favoriteView.setAlpha(Float.valueOf("1"));
             } else {
                 favoriteView.setAlpha(Float.valueOf("0.25"));
@@ -351,16 +349,16 @@ public class MainActivity extends AppCompatActivity {
             favoriteView.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View view) {
-                    if (mMovieRecord.favorite){
+                    if (movieRecord.favorite){
                         // true -> false
-                        mMovieRecord.favorite = false;
+                        movieRecord.favorite = false;
                         view.setAlpha(Float.valueOf("0.25"));
                     } else {
                         // false -> true
-                        mMovieRecord.favorite = true;
+                        movieRecord.favorite = true;
                         view.setAlpha(Float.valueOf("1"));
                     }
-                    mMovieRecord.save();
+                    movieRecord.save();
                 }
             });
 

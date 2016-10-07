@@ -1,6 +1,7 @@
 package shakeup.hollywoo.data;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.orm.SugarContext;
 
@@ -11,6 +12,7 @@ import java.util.ArrayList;
  */
 
 public class DbHelper {
+    private static final String LOG_TAG = DbHelper.class.getSimpleName();
 
     /**
      * Get or initalize the movie record if it doesnt exist. If it does, return the existing record.
@@ -53,7 +55,9 @@ public class DbHelper {
     public static ArrayList<MovieRecord> getFavorites(){
         ArrayList<MovieRecord> favoriteMovies = (ArrayList<MovieRecord>) MovieRecord.find(
                 MovieRecord.class,
-                "FAVORITE = true");
+                "favorite = ?", "1");
+
+        Log.d(LOG_TAG, "Number of favorites found: " + favoriteMovies.size());
         return favoriteMovies;
     }
 
@@ -64,7 +68,7 @@ public class DbHelper {
     public static ArrayList<MovieRecord> getWatchList(){
         ArrayList<MovieRecord> watchMovies = (ArrayList<MovieRecord>) MovieRecord.find(
                 MovieRecord.class,
-                "watched = ?", "true");
+                "watched = ?", "1");
         return watchMovies;
     }
 
