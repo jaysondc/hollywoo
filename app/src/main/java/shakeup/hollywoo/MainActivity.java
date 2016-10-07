@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -53,12 +54,14 @@ public class MainActivity extends AppCompatActivity {
     private JSONArray mResults;
     private GridView mGridView;
     private RequestQueue mRequestQueue;
+    private CoordinatorLayout mCoordinatorLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        mCoordinatorLayout  = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
         setSupportActionBar(toolbar);
         com.github.clans.fab.FloatingActionButton fabFilterFavorites =
                 (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab_filter_favorites);
@@ -129,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(!isNetworkAvailable()){
             // Show error if no connection is detected
-            Snackbar.make(fabMenu,
+            Snackbar.make(mCoordinatorLayout,
                     getResources().getString(R.string.NO_CONNECTION),
                     Snackbar.LENGTH_LONG)
             .show();
@@ -141,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
                     url = getString(R.string.URL_POPULARITY) +
                                 getString(R.string.API_KEY) +
                                 BuildConfig.MOVIE_DB_API_KEY;
-                    Snackbar.make(fabMenu,
+                    Snackbar.make(mCoordinatorLayout,
                                 getResources().getString(R.string.SORT_POPULARITY_SNACKBAR),
                                 Snackbar.LENGTH_LONG)
                                 .show();
@@ -150,13 +153,13 @@ public class MainActivity extends AppCompatActivity {
                     url = getString(R.string.URL_RATING) +
                                 getString(R.string.API_KEY) +
                                 BuildConfig.MOVIE_DB_API_KEY;
-                    Snackbar.make(fabMenu,
+                    Snackbar.make(mCoordinatorLayout,
                                 getResources().getString(R.string.SORT_RATING_SNACKBAR),
                                 Snackbar.LENGTH_LONG)
                                 .show();
                 break;
                 case FAVORITES:
-                    Snackbar.make(fabMenu,
+                    Snackbar.make(mCoordinatorLayout,
                             getResources().getString(R.string.SORT_FAVORITES_SNACKBAR),
                             Snackbar.LENGTH_LONG)
                             .show();
@@ -196,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         Log.d(LOG_TAG, "Response error.");
                         // error handling stuff
-                        Snackbar.make(fabMenu,
+                        Snackbar.make(mCoordinatorLayout,
                                 getResources().getString(R.string.NETWORK_ERROR),
                                 Snackbar.LENGTH_LONG)
                                 .show();
@@ -361,6 +364,13 @@ public class MainActivity extends AppCompatActivity {
                     movieRecord.save();
                 }
             });
+
+            // Resize the layout to fit a poster
+            ViewGroup.LayoutParams params = movieLayout.getLayoutParams();
+            int movieWidth = mGridView.getColumnWidth();
+            int movieHeight = (int) Math.floor(movieWidth * 1.5);
+            params.height = (movieHeight);
+            movieLayout.setLayoutParams(params);
 
             return movieLayout;
         }

@@ -10,7 +10,8 @@
     android:stretchMode="columnWidth"
     android:verticalSpacing="@dimen/grid_spacing_vertical"
     android:horizontalSpacing="@dimen/grid_spacing_horizontal"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    android:background="@color/cardview_dark_background">
     <!--
     TODO: Show empty view when there are no results
     -->

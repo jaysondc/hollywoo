@@ -2,15 +2,19 @@
 
 <!--http://stackoverflow.com/questions/15261088/gridview-with-two-columns-and-auto-resized-images-->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/grid_item"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="200dp"
+    tools:layout_width="200dp"
+    tools:layout_height="300dp"
     xmlns:tools="http://schemas.android.com/tools">
 
     <ImageView
         android:id="@+id/movie_poster"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:scaleType="centerCrop"/>
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        tools:src="@drawable/poster_1"/>
 
     <FrameLayout
         android:id="@+id/movie_info"
