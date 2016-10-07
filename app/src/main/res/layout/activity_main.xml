@@ -26,30 +26,33 @@
     <include layout="@layout/content_main" />
 
     <com.github.clans.fab.FloatingActionMenu
+        android:id="@+id/fab_filter_menu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         fab:menu_icon="@drawable/ic_filter_variant_white_24dp"
         android:layout_gravity="bottom|end">
 
         <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab_filter_favorites"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            fab:menu_icon="@drawable/ic_filter_variant_white_24dp"
+            android:src="@drawable/ic_filter_variant_white_18dp"
             fab:fab_size="mini"
             fab:fab_label="Favorites"/>
         <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab_filter_popular"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            fab:menu_icon="@drawable/ic_filter_variant_white_24dp"
+            android:src="@drawable/ic_filter_variant_white_18dp"
             fab:fab_size="mini"
             fab:fab_label="Most Popular"/>
         <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab_filter_rating"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            fab:menu_icon="@drawable/ic_filter_variant_white_24dp"
+            android:src="@drawable/ic_filter_variant_white_18dp"
             fab:fab_size="mini"
             fab:fab_label="Highest Rated"/>
-
     </com.github.clans.fab.FloatingActionMenu>
 
 

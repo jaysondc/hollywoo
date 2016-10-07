@@ -21,6 +21,7 @@
     <!-- UI Strings -->
     <string name="SORT_POPULARITY_SNACKBAR">Sort by POPULARITY.</string>
     <string name="SORT_RATING_SNACKBAR">Sort by RATING.</string>
+    <string name="SORT_FAVORITES_SNACKBAR">Sort by Favorites.</string>
     <string name="NO_CONNECTION">No connection.</string>
     <string name="NETWORK_ERROR">There was a network error.</string>
     <string name="EMPTY_GRID">Nothing seems to be here.</string>

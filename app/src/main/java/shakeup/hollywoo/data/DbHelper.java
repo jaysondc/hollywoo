@@ -5,7 +5,6 @@ import android.content.Context;
 import com.orm.SugarContext;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Jayson Dela Cruz on 10/4/2016.
@@ -14,40 +13,16 @@ import java.util.List;
 public class DbHelper {
 
     /**
-     * This method is called whenever we encounter a movie. If the movie is already in our
-     * database it returns that row. If it doesn't exist then the record is created
-     * and returned.
-     * @param movieId The MovieDB id of the movie.
-     * @return A single movie entity from the database.
+     * Get or initalize the movie record if it doesnt exist. If it does, return the existing record.
+     * @param movieId
+     * @return corresponding movie record
      */
-    public static MovieRecord getMovie(Long movieId, String imgUrl){
-
-        ArrayList<MovieRecord> movieRecord = (ArrayList<MovieRecord>) MovieRecord.find(
-                MovieRecord.class,
-                "MOVIE_ID = ?", Long.toString(movieId));
-
-        List<MovieRecord> allRecords = MovieRecord.listAll(MovieRecord.class);
-
-        //Log.i("DbHelper", "Num of movie records: " + allRecords.size());
-
-        if (movieRecord.isEmpty()){
-            // Create movie and add it to database
-            MovieRecord myMovie = new MovieRecord(movieId, false, false, imgUrl);
-            myMovie.save();
-            return myMovie;
-        } else {
-            // Return the movie
-            return movieRecord.get(0);
-        }
-    }
-
     public static MovieRecord getMovie(Long movieId){
         ArrayList<MovieRecord> movieRecord = (ArrayList<MovieRecord>) MovieRecord.find(
                 MovieRecord.class,
                 "MOVIE_ID = ?", Long.toString(movieId));
 
-        List<MovieRecord> allRecords = MovieRecord.listAll(MovieRecord.class);
-
+        //List<MovieRecord> allRecords = MovieRecord.listAll(MovieRecord.class);
         //Log.i("DbHelper", "Num of movie records: " + allRecords.size());
 
         if (movieRecord.isEmpty()){
@@ -59,6 +34,38 @@ public class DbHelper {
             // Return the movie
             return movieRecord.get(0);
         }
+    }
+
+    /**
+     * List all the movies in the database
+     * @return List of all movies in database
+     */
+    public static ArrayList<MovieRecord> getAllMovies(){
+        ArrayList<MovieRecord> allMovies =
+                (ArrayList<MovieRecord>) MovieRecord.listAll(MovieRecord.class);
+        return allMovies;
+    }
+
+    /**
+     * List all the favorite movies in the database
+     * @return List of favorite movies in database
+     */
+    public static ArrayList<MovieRecord> getFavorites(){
+        ArrayList<MovieRecord> favoriteMovies = (ArrayList<MovieRecord>) MovieRecord.find(
+                MovieRecord.class,
+                "FAVORITE = true");
+        return favoriteMovies;
+    }
+
+    /**
+     * List all watch list movies in the database
+     * @return List of watch list movies in the database
+     */
+    public static ArrayList<MovieRecord> getWatchList(){
+        ArrayList<MovieRecord> watchMovies = (ArrayList<MovieRecord>) MovieRecord.find(
+                MovieRecord.class,
+                "watched = ?", "true");
+        return watchMovies;
     }
 
     public static void deleteAll(){

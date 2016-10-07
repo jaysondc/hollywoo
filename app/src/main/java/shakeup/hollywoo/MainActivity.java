@@ -8,7 +8,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -33,8 +32,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 import shakeup.hollywoo.data.DbHelper;
 import shakeup.hollywoo.data.MovieRecord;
+
+import static shakeup.hollywoo.R.id.fab;
 
 /**
  * Created by Jayson Dela Cruz 8/30/2016
@@ -45,11 +48,13 @@ public class MainActivity extends AppCompatActivity {
 
     public final String POPULARITY = "popularity";
     public final String RATING = "rating";
+    public final String FAVORITES = "favorites";
     public final String LOG_TAG = getClass().getSimpleName();
     public final String BUNDLE_MOVIE_ADAPTER = "movie_adapter";
     private String SORT_BY = POPULARITY;
     private JSONArray mResults;
     private GridView mGridView;
+    private RequestQueue mRequestQueue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +62,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        com.github.clans.fab.FloatingActionButton fabFilterFavorites =
+                (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab_filter_favorites);
+        com.github.clans.fab.FloatingActionButton fabFilterPopular =
+                (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab_filter_popular);
+        com.github.clans.fab.FloatingActionButton fabFilterRating =
+                (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab_filter_rating);
 
         // Set up gridview
         mGridView = (GridView) findViewById(R.id.movie_gridview);
@@ -87,25 +97,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Instantiate the RequestQueue from the singleton VolleyRequestManager
-        final RequestQueue queue = VolleyRequestManager.getInstance(
+        mRequestQueue = VolleyRequestManager.getInstance(
                 this.getApplicationContext()).getRequestQueue();
 
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Toggle sort on FAB click
-                if(SORT_BY.equals(POPULARITY)){
-                    SORT_BY = RATING;
-                    updateMovies(queue);
-                } else if(SORT_BY.equals(RATING)){
-                    SORT_BY = POPULARITY;
-                    updateMovies(queue);
-                }
-            }
-        });
+        fabFilterFavorites.setOnClickListener(new filterClickListener());
+        fabFilterPopular.setOnClickListener(new filterClickListener());
+        fabFilterRating.setOnClickListener(new filterClickListener());
 
+        // If we aren't recovering from a saved instance, start the update from scratch
         if(savedInstanceState == null || !savedInstanceState.containsKey(BUNDLE_MOVIE_ADAPTER)){
-            updateMovies(queue);
+            updateMovies();
         }
     }
 
@@ -117,68 +118,95 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void updateMovies(RequestQueue queue){
+    /**
+     * Main method for updating the grid adapter. This shoots off the proper volley request
+     * based on the filter type specified in the method variable SORT_BY
+     */
+    private void updateMovies(){
+
         Log.d(LOG_TAG, "Connection test = " + isNetworkAvailable());
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
+        com.github.clans.fab.FloatingActionMenu fabMenu =
+                (com.github.clans.fab.FloatingActionMenu) findViewById(R.id.fab_filter_menu);
 
         if(!isNetworkAvailable()){
-            Snackbar.make(fab,
+            // Show error if no connection is detected
+            Snackbar.make(fabMenu,
                     getResources().getString(R.string.NO_CONNECTION),
                     Snackbar.LENGTH_LONG)
             .show();
         } else {
-            // Create URL String
+            // Create URL String based on sort criteria
             String url = "";
-            if (SORT_BY.equals(POPULARITY)) {
-                url = getString(R.string.URL_POPULARITY) +
-                        getString(R.string.API_KEY) +
-                        BuildConfig.MOVIE_DB_API_KEY;
-                Snackbar.make(fab,
-                        getResources().getString(R.string.SORT_POPULARITY_SNACKBAR),
-                        Snackbar.LENGTH_LONG)
-                .show();
-            } else if (SORT_BY.equals(RATING)) {
-                url = getString(R.string.URL_RATING) +
-                        getString(R.string.API_KEY) +
-                        BuildConfig.MOVIE_DB_API_KEY;
-                Snackbar.make(fab,
-                        getResources().getString(R.string.SORT_RATING_SNACKBAR),
-                        Snackbar.LENGTH_LONG)
-                .show();
+            switch(SORT_BY){
+                case POPULARITY:
+                    url = getString(R.string.URL_POPULARITY) +
+                                getString(R.string.API_KEY) +
+                                BuildConfig.MOVIE_DB_API_KEY;
+                    Snackbar.make(fabMenu,
+                                getResources().getString(R.string.SORT_POPULARITY_SNACKBAR),
+                                Snackbar.LENGTH_LONG)
+                                .show();
+                break;
+                case RATING:
+                    url = getString(R.string.URL_RATING) +
+                                getString(R.string.API_KEY) +
+                                BuildConfig.MOVIE_DB_API_KEY;
+                    Snackbar.make(fabMenu,
+                                getResources().getString(R.string.SORT_RATING_SNACKBAR),
+                                Snackbar.LENGTH_LONG)
+                                .show();
+                break;
+                case FAVORITES:
+                    Snackbar.make(fabMenu,
+                            getResources().getString(R.string.SORT_FAVORITES_SNACKBAR),
+                            Snackbar.LENGTH_LONG)
+                            .show();
+                    break;
             }
             Log.d(LOG_TAG, "URL: " + url);
 
-            // Build JSONArray Request for movies
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            Log.d(LOG_TAG, "Response received.");
-                            try {
-                                // Store results
-                                mResults = response.getJSONArray("results");
-                                // Update adapter with results
-                                MovieAdapter adapter = (MovieAdapter) mGridView.getAdapter();
-                                adapter.setResultsArray(mResults);
-                                adapter.notifyDataSetChanged();
-                            } catch (JSONException error) {
-                                Log.d(LOG_TAG, "JSON Error: " + error);
-                            }
+            if(SORT_BY.equals(FAVORITES)){
+                // For favorites, load the data locally
+                ArrayList<MovieRecord> favoriteMovies = DbHelper.getAllMovies();
+                MovieAdapter adapter = (MovieAdapter) mGridView.getAdapter();
+                adapter.setMovieRecordArray(favoriteMovies);
+                adapter.notifyDataSetChanged();
+            } else {
+                // For Rating and Popular, create the volley request
 
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.d(LOG_TAG, "Response error.");
-                    // error handling stuff
-                    Snackbar.make(findViewById(R.id.fab),
-                            getResources().getString(R.string.NETWORK_ERROR),
-                            Snackbar.LENGTH_LONG)
-                            .show();
-                }
-            });
-            // Launch request
-            queue.add(jsonObjectRequest);
+                // Build JSONArray Request for movies
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                        new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                Log.d(LOG_TAG, "Response received.");
+                                try {
+                                    // Store results
+                                    mResults = response.getJSONArray("results");
+                                    // Update adapter with results
+                                    MovieAdapter adapter = (MovieAdapter) mGridView.getAdapter();
+                                    adapter.setResultsArray(mResults);
+                                    adapter.notifyDataSetChanged();
+                                } catch (JSONException error) {
+                                    Log.d(LOG_TAG, "JSON Error: " + error);
+                                }
+
+                            }
+                        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d(LOG_TAG, "Response error.");
+                        // error handling stuff
+                        Snackbar.make(findViewById(fab),
+                                getResources().getString(R.string.NETWORK_ERROR),
+                                Snackbar.LENGTH_LONG)
+                                .show();
+                    }
+                });
+                // Launch request
+                mRequestQueue.add(jsonObjectRequest);
+            }
         }
     }
 
@@ -198,6 +226,8 @@ public class MainActivity extends AppCompatActivity {
         private long mMovieID;
         private final LayoutInflater mInflater;
         private JSONArray mResultsArray;
+        private ArrayList<MovieRecord> mMovieRecordArray;
+        private MovieRecord mMovieRecord;
 
         public MovieAdapter() {
             mResultsArray = mResults;
@@ -218,8 +248,16 @@ public class MainActivity extends AppCompatActivity {
             mResultsArray = results;
         }
 
+        public void setMovieRecordArray(ArrayList<MovieRecord> favorites){
+            mMovieRecordArray = favorites;
+        }
+
         public int getCount() {
-            return mResultsArray != null ? mResultsArray.length() : 0;
+            if (SORT_BY.equals(FAVORITES)) {
+                return mMovieRecordArray != null ? mMovieRecordArray.size() : 0;
+            } else {
+                return mResultsArray != null ? mResultsArray.length() : 0;
+            }
         }
 
         public Object getItem(int position) {
@@ -238,26 +276,35 @@ public class MainActivity extends AppCompatActivity {
             ImageView watchedView;
             ImageView favoriteView;
 
-            // Parse movie data
-            if(mResultsArray != null) {
-                try {
-                    JSONObject movie = (JSONObject) mResultsArray.get(position);
-                    String title = movie.getString("title");
-                    String posterPath = movie.getString("poster_path");
-                    String popularity = movie.getString("popularity");
-                    String voteAverage = movie.getString("vote_average");
-                    mMovieID = Long.parseLong(movie.getString("id"));
+            if(SORT_BY.equals(FAVORITES)){
+                // Retrieve the data from the favorite movie array
+                mMovieRecord = mMovieRecordArray.get(position);
+                String posterPath = mMovieRecord.imageUrl;
+                mMovieID = mMovieRecord.movieId;
 
-                    mPosterUrl = getString(R.string.BASE_IMG_URL) + getString(R.string.IMG_SIZE_342) + posterPath;
+            } else {
+                // Parse movie data from the JSONArray
+                if(mResultsArray != null) {
+                    try {
+                        JSONObject movie = (JSONObject) mResultsArray.get(position);
+                        String title = movie.getString("title");
+                        String posterPath = movie.getString("poster_path");
+                        String popularity = movie.getString("popularity");
+                        String voteAverage = movie.getString("vote_average");
+                        mMovieID = Long.parseLong(movie.getString("id"));
 
-                    // Log.d(LOG_TAG, "Title: " + title);
-                } catch (JSONException error) {
-                    Log.d(LOG_TAG, "JSON Error: " + error);
+                        mPosterUrl = getString(R.string.BASE_IMG_URL) + getString(R.string.IMG_SIZE_342) + posterPath;
+
+                        // Log.d(LOG_TAG, "Title: " + title);
+                    } catch (JSONException error) {
+                        Log.d(LOG_TAG, "JSON Error: " + error);
+                    }
                 }
+                // Retrieve movie from local db and update image
+                mMovieRecord = DbHelper.getMovie(mMovieID);
+                mMovieRecord.imageUrl = mPosterUrl;
+                mMovieRecord.save();
             }
-
-            // Retrieve movie from local db
-            final MovieRecord movieRecord = DbHelper.getMovie(mMovieID, mPosterUrl);
 
             // Get recycled item
             if (convertView == null) {
@@ -273,7 +320,7 @@ public class MainActivity extends AppCompatActivity {
 
             // Set watched
             watchedView = (ImageView) movieLayout.findViewById(R.id.grid_watched);
-            if(movieRecord.watched){
+            if(mMovieRecord.watched){
                 watchedView.setAlpha(Float.valueOf("1"));
             } else {
                 watchedView.setAlpha(Float.valueOf("0.25"));
@@ -281,22 +328,22 @@ public class MainActivity extends AppCompatActivity {
             watchedView.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View view) {
-                    if (movieRecord.watched){
+                    if (mMovieRecord.watched){
                         // true -> false
-                        movieRecord.watched = false;
+                        mMovieRecord.watched = false;
                         view.setAlpha(Float.valueOf("0.25"));
                     } else {
                         // false -> true
-                        movieRecord.watched = true;
+                        mMovieRecord.watched = true;
                         view.setAlpha(Float.valueOf("1"));
                     }
-                    movieRecord.save();
+                    mMovieRecord.save();
                 }
             });
 
             // Set favorite
             favoriteView = (ImageView) movieLayout.findViewById(R.id.grid_favorite);
-            if(movieRecord.favorite){
+            if(mMovieRecord.favorite){
                 favoriteView.setAlpha(Float.valueOf("1"));
             } else {
                 favoriteView.setAlpha(Float.valueOf("0.25"));
@@ -304,16 +351,16 @@ public class MainActivity extends AppCompatActivity {
             favoriteView.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View view) {
-                    if (movieRecord.favorite){
+                    if (mMovieRecord.favorite){
                         // true -> false
-                        movieRecord.favorite = false;
+                        mMovieRecord.favorite = false;
                         view.setAlpha(Float.valueOf("0.25"));
                     } else {
                         // false -> true
-                        movieRecord.favorite = true;
+                        mMovieRecord.favorite = true;
                         view.setAlpha(Float.valueOf("1"));
                     }
-                    movieRecord.save();
+                    mMovieRecord.save();
                 }
             });
 
@@ -344,5 +391,32 @@ public class MainActivity extends AppCompatActivity {
 
         };
 
+    }
+
+
+    private class filterClickListener implements View.OnClickListener{
+        @Override
+        public void onClick(View view) {
+            com.github.clans.fab.FloatingActionMenu fabMenu =
+                    (com.github.clans.fab.FloatingActionMenu) findViewById(R.id.fab_filter_menu);
+            fabMenu.close(true);
+            switch(view.getId()){
+                case R.id.fab_filter_favorites:
+                    SORT_BY = FAVORITES;
+                    updateMovies();
+                    break;
+                case R.id.fab_filter_popular:
+                    SORT_BY = POPULARITY;
+                    updateMovies();
+                    break;
+                case R.id.fab_filter_rating:
+                    SORT_BY = RATING;
+                    updateMovies();
+                    break;
+            }
+
+            Log.d(LOG_TAG, "Now sorted by " + SORT_BY);
+
+        }
     }
 }
