@@ -6,6 +6,8 @@
     android:id="@+id/card_view_reviews"
     android:layout_gravity="center"
     android:layout_marginBottom="@dimen/card_margin_between"
+    android:layout_marginRight="@dimen/card_margin_between"
+    android:layout_marginLeft="@dimen/card_margin_between"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     tools:showIn="@layout/content_movie_detail">
