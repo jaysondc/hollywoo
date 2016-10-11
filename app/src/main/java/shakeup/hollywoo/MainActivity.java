@@ -14,7 +14,6 @@ import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -70,16 +69,24 @@ public class MainActivity extends AppCompatActivity {
         com.github.clans.fab.FloatingActionButton fabFilterRating =
                 (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab_filter_rating);
 
-        // Set up gridview
-        mGridView = (GridView) findViewById(R.id.movie_gridview);
+        // Instantiate the RequestQueue from the singleton VolleyRequestManager
+        mRequestQueue = VolleyRequestManager.getInstance(
+                this.getApplicationContext()).getRequestQueue();
 
-        if(savedInstanceState == null || !savedInstanceState.containsKey(BUNDLE_MOVIE_ADAPTER)){
+        // Set up gridview
+        mGridView = (GridView) mCoordinatorLayout.findViewById(R.id.movie_gridview);
+
+        // TODO: My parcelable implementation isn't working. Reload everything on rotate for now.
+//        if(savedInstanceState == null || !savedInstanceState.containsKey(BUNDLE_MOVIE_ADAPTER)){
             mGridView.setAdapter(new MovieAdapter());
-        } else {
-            // Restore adapter from saved state
-            mGridView.setAdapter((MovieAdapter)
-                    savedInstanceState.getParcelable(BUNDLE_MOVIE_ADAPTER));
-        }
+            updateMovies();
+//        } else {
+//            // Restore adapter from saved state
+//            MovieAdapter recoveredAdapter =
+//                    savedInstanceState.getParcelable(BUNDLE_MOVIE_ADAPTER);
+//            mGridView.invalidateViews();
+//            mGridView.setAdapter(recoveredAdapter);
+//        }
 
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             public void onItemClick(AdapterView<?> parent, View v, int position, long id){
@@ -97,18 +104,10 @@ public class MainActivity extends AppCompatActivity {
             ViewCompat.setNestedScrollingEnabled(mGridView, true);
         }
 
-        // Instantiate the RequestQueue from the singleton VolleyRequestManager
-        mRequestQueue = VolleyRequestManager.getInstance(
-                this.getApplicationContext()).getRequestQueue();
-
         fabFilterFavorites.setOnClickListener(new filterClickListener());
         fabFilterPopular.setOnClickListener(new filterClickListener());
         fabFilterRating.setOnClickListener(new filterClickListener());
 
-        // If we aren't recovering from a saved instance, start the update from scratch
-        if(savedInstanceState == null || !savedInstanceState.containsKey(BUNDLE_MOVIE_ADAPTER)){
-            updateMovies();
-        }
     }
 
     public boolean isNetworkAvailable(){
@@ -173,6 +172,8 @@ public class MainActivity extends AppCompatActivity {
                 MovieAdapter adapter = (MovieAdapter) mGridView.getAdapter();
                 adapter.setMovieRecordArray(favoriteMovies);
                 adapter.notifyDataSetChanged();
+                mGridView.invalidateViews();
+                mGridView.setAdapter(adapter);
             } else {
                 // For Rating and Popular, create the volley request
 
@@ -217,7 +218,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         // Store the movie adapter as parcelable
-        outState.putParcelable(BUNDLE_MOVIE_ADAPTER, (MovieAdapter) mGridView.getAdapter());
+        MovieAdapter retainAdapter = (MovieAdapter) mGridView.getAdapter();
+        outState.putParcelable(BUNDLE_MOVIE_ADAPTER, retainAdapter);
         super.onSaveInstanceState(outState);
     }
 
@@ -225,13 +227,11 @@ public class MainActivity extends AppCompatActivity {
     public class MovieAdapter extends BaseAdapter implements Parcelable {
         private String mPosterUrl;
         private long mMovieID;
-        private final LayoutInflater mInflater;
         private JSONArray mResultsArray;
         private ArrayList<MovieRecord> mMovieRecordArray;
 
         public MovieAdapter() {
             mResultsArray = mResults;
-            mInflater = LayoutInflater.from(getApplicationContext());
         }
 
         private MovieAdapter(Parcel in){
@@ -241,15 +241,14 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(LOG_TAG, "JSON Exception: " + exception);
                 Log.d(LOG_TAG, "Failed to import JSON Parcel");
             }
-            mInflater = LayoutInflater.from(getApplicationContext());
         }
 
         public void setResultsArray(JSONArray results){
             mResultsArray = results;
         }
 
-        public void setMovieRecordArray(ArrayList<MovieRecord> favorites){
-            mMovieRecordArray = favorites;
+        public void setMovieRecordArray(ArrayList<MovieRecord> movieRecords){
+            mMovieRecordArray = movieRecords;
         }
 
         public int getCount() {
@@ -310,8 +309,9 @@ public class MainActivity extends AppCompatActivity {
             // Get recycled item
             if (convertView == null) {
                 // if it's not recycled, assign new image and text
-                movieLayout = mInflater.inflate(R.layout.movie_grid_item, parent, false);
+                movieLayout = getLayoutInflater().inflate(R.layout.movie_grid_item, parent, false);
             }
+
             // Put mMovieID in tag for use in details screen
             movieLayout.setTag(mMovieID);
 
@@ -382,7 +382,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void writeToParcel(Parcel parcel, int i) {
+        public void writeToParcel(Parcel parcel, int flags) {
+            Log.d(LOG_TAG, "MovieAdapter written to parcel!");
             parcel.writeString(mResults.toString());
         }
 
@@ -390,10 +391,12 @@ public class MainActivity extends AppCompatActivity {
                 new Parcelable.Creator<MovieAdapter>(){
             @Override
             public MovieAdapter createFromParcel(Parcel parcel) {
+                Log.d(LOG_TAG, "MovieAdapter created from parcel!");
                 return new MovieAdapter(parcel);
             }
             @Override
             public MovieAdapter[] newArray(int i) {
+                Log.d(LOG_TAG, "MovieAdapter array created from parcel!");
                 return new MovieAdapter[i];
             }
 
