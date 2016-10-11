@@ -3,6 +3,7 @@ package shakeup.hollywoo;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 
 import shakeup.hollywoo.data.DbHelper;
 import shakeup.hollywoo.data.MovieRecord;
+import shakeup.hollywoo.views.TopCropImageView;
 
 public class MovieDetailActivity extends AppCompatActivity {
     private Long movieID;
@@ -36,7 +38,7 @@ public class MovieDetailActivity extends AppCompatActivity {
     private JSONObject mVideos;
     private JSONObject mReviews;
 
-    ImageView mHeaderImage;
+    TopCropImageView mHeaderImage;
     TextView mTitle;
     TextView mGenres;
     TextView mRating;
@@ -155,7 +157,7 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     private void updateUI(){
         // Update UI once volley request is complete.
-        mHeaderImage = (ImageView) findViewById(R.id.detail_app_bar_image);
+        mHeaderImage = (TopCropImageView) findViewById(R.id.detail_app_bar_image);
         mTitle = (TextView) findViewById(R.id.detail_title);
         mGenres = (TextView) findViewById(R.id.detail_genres);
         mRating = (TextView) findViewById(R.id.detail_user_rating);

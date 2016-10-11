@@ -23,11 +23,10 @@
             app:contentScrim="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-            <ImageView
+            <shakeup.hollywoo.views.TopCropImageView
                 android:id="@+id/detail_app_bar_image"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="centerCrop"
                 tools:src="@drawable/sample_0"/>
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
