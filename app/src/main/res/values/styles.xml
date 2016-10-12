@@ -19,7 +19,6 @@
 
     <!-- Detail View Styles -->
     <style name="paragraphText">
-        <item name="android:fontFamily">sans-serif-condensed</item>
         <item name="android:textSize">14sp</item>
     </style>
 

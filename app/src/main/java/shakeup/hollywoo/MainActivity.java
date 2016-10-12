@@ -49,11 +49,14 @@ public class MainActivity extends AppCompatActivity {
     public final String FAVORITES = "favorites";
     public final String LOG_TAG = getClass().getSimpleName();
     public final String BUNDLE_MOVIE_ADAPTER = "movie_adapter";
+    public final String BUNDLE_SCROLL_POSITION = "scroll_position";
+    public final String BUNDLE_SORT_BY = "sort_by";
     private String SORT_BY = POPULARITY;
     private JSONArray mResults;
     private GridView mGridView;
     private RequestQueue mRequestQueue;
     private CoordinatorLayout mCoordinatorLayout;
+    private int mScrollPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,19 +77,36 @@ public class MainActivity extends AppCompatActivity {
                 this.getApplicationContext()).getRequestQueue();
 
         // Set up gridview
-        mGridView = (GridView) mCoordinatorLayout.findViewById(R.id.movie_gridview);
+        mGridView = (GridView) findViewById(R.id.movie_gridview);
 
-        // TODO: My parcelable implementation isn't working. Reload everything on rotate for now.
-//        if(savedInstanceState == null || !savedInstanceState.containsKey(BUNDLE_MOVIE_ADAPTER)){
+        // Get MovieAdapter from savedInstanceState if it exists
+        if(savedInstanceState == null || !savedInstanceState.containsKey(BUNDLE_MOVIE_ADAPTER)){
             mGridView.setAdapter(new MovieAdapter());
             updateMovies();
-//        } else {
-//            // Restore adapter from saved state
-//            MovieAdapter recoveredAdapter =
-//                    savedInstanceState.getParcelable(BUNDLE_MOVIE_ADAPTER);
-//            mGridView.invalidateViews();
-//            mGridView.setAdapter(recoveredAdapter);
-//        }
+        } else {
+            SORT_BY = savedInstanceState.getString(BUNDLE_SORT_BY);
+            mScrollPosition = savedInstanceState.getInt(BUNDLE_SCROLL_POSITION);
+
+            // Restore adapter from saved state
+            /**
+             * Android isn't reliable about actually calling the parcelable implementation methods
+             * and therefore copies the entire adapter object along with outdated references to
+             * things like mGridview, causing all sorts of problems.
+             * http://stackoverflow.com/questions/21301989/implementing-parcelable-in-android-onrestoreinstancestate-is-not-getting-called
+             *
+             * I implemented getters and setters to get the necessary data to re-create the adapter
+             * myself.
+             */
+            MovieAdapter newAdapter = new MovieAdapter();
+            MovieAdapter recoveredAdapter =
+                    savedInstanceState.getParcelable(BUNDLE_MOVIE_ADAPTER);
+
+            newAdapter.setResultsArray(recoveredAdapter.getResultsArray());
+            newAdapter.setMovieRecordArray(recoveredAdapter.getMovieRecordArray());
+
+            mGridView.setAdapter(newAdapter);
+            mGridView.smoothScrollToPosition(mScrollPosition);
+        }
 
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             public void onItemClick(AdapterView<?> parent, View v, int position, long id){
@@ -172,7 +192,6 @@ public class MainActivity extends AppCompatActivity {
                 MovieAdapter adapter = (MovieAdapter) mGridView.getAdapter();
                 adapter.setMovieRecordArray(favoriteMovies);
                 adapter.notifyDataSetChanged();
-                mGridView.invalidateViews();
                 mGridView.setAdapter(adapter);
             } else {
                 // For Rating and Popular, create the volley request
@@ -189,6 +208,7 @@ public class MainActivity extends AppCompatActivity {
                                     // Update adapter with results
                                     MovieAdapter adapter = (MovieAdapter) mGridView.getAdapter();
                                     adapter.setResultsArray(mResults);
+                                    mGridView.setAdapter(adapter);
                                     adapter.notifyDataSetChanged();
                                 } catch (JSONException error) {
                                     Log.d(LOG_TAG, "JSON Error: " + error);
@@ -220,13 +240,17 @@ public class MainActivity extends AppCompatActivity {
         // Store the movie adapter as parcelable
         MovieAdapter retainAdapter = (MovieAdapter) mGridView.getAdapter();
         outState.putParcelable(BUNDLE_MOVIE_ADAPTER, retainAdapter);
+
+        // Store scroll position and sort method
+        outState.putInt(BUNDLE_SCROLL_POSITION, mGridView.getFirstVisiblePosition());
+        outState.putString(BUNDLE_SORT_BY, SORT_BY);
+
         super.onSaveInstanceState(outState);
     }
 
 
     public class MovieAdapter extends BaseAdapter implements Parcelable {
-        private String mPosterUrl;
-        private long mMovieID;
+
         private JSONArray mResultsArray;
         private ArrayList<MovieRecord> mMovieRecordArray;
 
@@ -251,6 +275,14 @@ public class MainActivity extends AppCompatActivity {
             mMovieRecordArray = movieRecords;
         }
 
+        public JSONArray getResultsArray(){
+            return this.mResultsArray;
+        }
+
+        public ArrayList<MovieRecord> getMovieRecordArray(){
+            return this.mMovieRecordArray;
+        }
+
         public int getCount() {
             if (SORT_BY.equals(FAVORITES)) {
                 return mMovieRecordArray != null ? mMovieRecordArray.size() : 0;
@@ -264,7 +296,17 @@ public class MainActivity extends AppCompatActivity {
         }
 
         public long getItemId(int position) {
-            return mMovieID != 0 ? mMovieID : 0;
+            long movieId = -1;
+            if(mResultsArray != null) {
+                try {
+                    JSONObject movie = (JSONObject) mResultsArray.get(position);
+                    movieId = Long.parseLong(movie.getString("id"));
+                    // Log.d(LOG_TAG, "Title: " + title);
+                } catch (JSONException error) {
+                    Log.d(LOG_TAG, "JSON Error: " + error);
+                }
+            }
+            return movieId;
         }
 
         // create a new ImageView for each item referenced by the Adapter
@@ -275,12 +317,14 @@ public class MainActivity extends AppCompatActivity {
             ImageView watchedView;
             ImageView favoriteView;
             final MovieRecord movieRecord;
+            long movieId = -1;
+            String posterUrl = "";
 
             if(SORT_BY.equals(FAVORITES)){
                 // Retrieve the data from the favorite movie array
                 movieRecord = mMovieRecordArray.get(position);
-                mPosterUrl = movieRecord.imageUrl;
-                mMovieID = movieRecord.movieId;
+                posterUrl = movieRecord.imageUrl;
+                movieId = movieRecord.movieId;
 
             } else {
                 // Parse movie data from the JSONArray
@@ -291,9 +335,9 @@ public class MainActivity extends AppCompatActivity {
                         String posterPath = movie.getString("poster_path");
                         String popularity = movie.getString("popularity");
                         String voteAverage = movie.getString("vote_average");
-                        mMovieID = Long.parseLong(movie.getString("id"));
+                        movieId = Long.parseLong(movie.getString("id"));
 
-                        mPosterUrl = getString(R.string.BASE_IMG_URL) + getString(R.string.IMG_SIZE_342) + posterPath;
+                        posterUrl = getString(R.string.BASE_IMG_URL) + getString(R.string.IMG_SIZE_342) + posterPath;
 
                         // Log.d(LOG_TAG, "Title: " + title);
                     } catch (JSONException error) {
@@ -301,8 +345,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 // Retrieve movie from local db and update image
-                movieRecord = DbHelper.getMovie(mMovieID);
-                movieRecord.imageUrl = mPosterUrl;
+                movieRecord = DbHelper.getMovie(movieId);
+                movieRecord.imageUrl = posterUrl;
                 movieRecord.save();
             }
 
@@ -313,11 +357,11 @@ public class MainActivity extends AppCompatActivity {
             }
 
             // Put mMovieID in tag for use in details screen
-            movieLayout.setTag(mMovieID);
+            movieLayout.setTag(movieId);
 
             // Set image
             imageView = (ImageView) movieLayout.findViewById(R.id.movie_poster);
-            Glide.with(getApplicationContext()).load(mPosterUrl).into(imageView);
+            Glide.with(getApplicationContext()).load(posterUrl).into(imageView);
 
             // Set watched
             watchedView = (ImageView) movieLayout.findViewById(R.id.grid_watched);
@@ -384,7 +428,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void writeToParcel(Parcel parcel, int flags) {
             Log.d(LOG_TAG, "MovieAdapter written to parcel!");
-            parcel.writeString(mResults.toString());
+            parcel.writeString(mResultsArray.toString());
         }
 
         public final Parcelable.Creator<MovieAdapter> CREATOR =
