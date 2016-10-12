@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     public final String BUNDLE_MOVIE_ADAPTER = "movie_adapter";
     public final String BUNDLE_SCROLL_POSITION = "scroll_position";
     public final String BUNDLE_SORT_BY = "sort_by";
+    private String MOVIE_DETAIL_FRAGMENT_TAG = "detail_fragment_tag";
     private String SORT_BY = POPULARITY;
     private JSONArray mResults;
     private GridView mGridView;
@@ -117,12 +118,26 @@ public class MainActivity extends AppCompatActivity {
 
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             public void onItemClick(AdapterView<?> parent, View v, int position, long id){
-                // Create detail activity intent
-                Intent intent = new Intent(MainActivity.this, MovieDetailActivity.class);
 
-                Long movieID = (long) v.getTag();
-                intent.putExtra(getString(R.string.EXTRA_MOVIE_ID), movieID);
-                startActivity(intent);
+                if(mTwoPaneLayout){
+                    // If two pane layout, refresh fragment with selected item.
+                    Bundle args = new Bundle();
+                    args.putLong(getString(R.string.EXTRA_MOVIE_ID), (long) v.getTag());
+                    MovieDetailFragment fragment = new MovieDetailFragment();
+                    fragment.setArguments(args);
+
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.movie_detail_container, fragment,
+                                    MOVIE_DETAIL_FRAGMENT_TAG)
+                            .commit();
+
+                } else {
+                    // Create detail activity intent if single plane layout
+                    Intent intent = new Intent(MainActivity.this, MovieDetailActivity.class);
+                    Long movieID = (long) v.getTag();
+                    intent.putExtra(getString(R.string.EXTRA_MOVIE_ID), movieID);
+                    startActivity(intent);
+                }
             }
         });
 

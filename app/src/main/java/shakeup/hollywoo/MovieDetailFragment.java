@@ -61,8 +61,14 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment{
 
         mView = inflater.inflate(R.layout.content_movie_detail, container, false);
 
-        // Get Movie ID passed in from intent
-        movieID = getActivity().getIntent().getLongExtra(getString(R.string.EXTRA_MOVIE_ID), 0);
+        // Get Movie ID
+        if(getArguments() != null){
+            // MovieID is in arguments if passed through a fragment
+            movieID = getArguments().getLong(getString(R.string.EXTRA_MOVIE_ID));
+        } else {
+            // MovieID is in intent extra if passed through an intent
+            movieID = getActivity().getIntent().getLongExtra(getString(R.string.EXTRA_MOVIE_ID), 0);
+        }
 
         // Instantiate the RequestQueue from the singleton VolleyRequestManager
         final RequestQueue queue = VolleyRequestManager.getInstance(getActivity().getApplicationContext()).getRequestQueue();

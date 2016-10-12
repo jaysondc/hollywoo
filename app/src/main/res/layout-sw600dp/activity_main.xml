@@ -33,7 +33,7 @@
             android:layout_width="0dp"
             android:layout_weight=".4"/>
 
-        <FrameLayout
+        <ScrollView
             android:id="@+id/movie_detail_container"
             android:layout_height="match_parent"
             android:layout_width="0dp"
