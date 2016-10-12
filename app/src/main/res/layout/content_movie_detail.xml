@@ -1,114 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/cardview_shadow_end_color"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="shakeup.hollywoo.MovieDetailActivity">
-
-    <LinearLayout
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <android.support.v7.widget.CardView
+        android:id="@+id/card_view_details"
+        android:layout_gravity="top"
+        android:layout_marginTop="@dimen/card_margin_between"
+        android:layout_marginBottom="@dimen/card_margin_between"
+        android:layout_marginRight="@dimen/card_margin_between"
+        android:layout_marginLeft="@dimen/card_margin_between"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <android.support.v7.widget.CardView
-            android:id="@+id/card_view_details"
-            android:layout_gravity="top"
-            android:layout_marginTop="@dimen/card_margin_between"
-            android:layout_marginBottom="@dimen/card_margin_between"
-            android:layout_marginRight="@dimen/card_margin_between"
-            android:layout_marginLeft="@dimen/card_margin_between"
+        android:layout_height="wrap_content">
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingTop="@dimen/card_margin"
-                android:paddingBottom="@dimen/card_margin"
-                android:paddingLeft="@dimen/card_margin"
-                android:paddingRight="@dimen/card_margin">
+            android:layout_height="match_parent"
+            android:paddingTop="@dimen/card_margin"
+            android:paddingBottom="@dimen/card_margin"
+            android:paddingLeft="@dimen/card_margin"
+            android:paddingRight="@dimen/card_margin">
 
-                <TextView
-                    android:id="@+id/detail_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:textAppearanceLarge"
-                    tools:text="The Magnificent Seven"
-                    android:textSize="32sp"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true" />
+            <TextView
+                android:id="@+id/detail_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:textAppearanceLarge"
+                tools:text="The Magnificent Seven"
+                android:textSize="32sp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
 
-                <TextView
-                    android:id="@+id/detail_release_runtime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/text_margin_vertical"
-                    android:layout_below="@id/detail_title"
-                    android:textAppearance="?android:textAppearanceMedium"
-                    android:textSize="14sp"
-                    tools:text="September 15, 2016 - 2 hr 12 min"/>
+            <TextView
+                android:id="@+id/detail_release_runtime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/text_margin_vertical"
+                android:layout_below="@id/detail_title"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:textSize="14sp"
+                tools:text="September 15, 2016 - 2 hr 12 min"/>
 
-                <TextView
-                    android:id="@+id/detail_genres"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/detail_release_runtime"
-                    android:layout_marginTop="@dimen/text_margin_vertical"
-                    android:textAppearance="?android:textAppearanceSmall"
-                    android:textSize="12sp"
-                    tools:text="Action, Adventure, Western" />
+            <TextView
+                android:id="@+id/detail_genres"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/detail_release_runtime"
+                android:layout_marginTop="@dimen/text_margin_vertical"
+                android:textAppearance="?android:textAppearanceSmall"
+                android:textSize="12sp"
+                tools:text="Action, Adventure, Western" />
 
-                <TextView
-                    android:id="@+id/detail_user_rating"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/text_margin_vertical"
-                    android:textAppearance="?android:textAppearanceMedium"
-                    android:textSize="14sp"
-                    tools:text="4.7/10 - 214 votes"
-                    android:layout_below="@+id/detail_genres" />
+            <TextView
+                android:id="@+id/detail_user_rating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/text_margin_vertical"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:textSize="14sp"
+                tools:text="4.7/10 - 214 votes"
+                android:layout_below="@+id/detail_genres" />
 
-                <include
-                    android:id="@+id/horizontal_divider"
-                    layout="@layout/horizontal_divider" />
+            <include
+                android:id="@+id/horizontal_divider"
+                layout="@layout/horizontal_divider" />
 
-                <TextView
-                    android:id="@+id/detail_synopsis"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/horizontal_divider"
-                    style="@style/paragraphText"
-                    tools:text="A big screen remake of John Sturges' classic western The Magnificent Seven, itself a remake of Akira Kurosawa's Seven Samurai. Seven gun men in the old west gradually come together to help a poor village aigainst savage theives."/>
+            <TextView
+                android:id="@+id/detail_synopsis"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/horizontal_divider"
+                style="@style/paragraphText"
+                tools:text="A big screen remake of John Sturges' classic western The Magnificent Seven, itself a remake of Akira Kurosawa's Seven Samurai. Seven gun men in the old west gradually come together to help a poor village aigainst savage theives."/>
 
-                <ImageView
-                    android:id="@+id/detail_watched"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="8dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_gravity="left"
-                    android:layout_below="@id/detail_synopsis"
-                    android:alpha=".7"
-                    android:src="@drawable/ic_visibility_black_36dp"/>
-                <ImageView
-                    android:id="@+id/detail_favorites"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:layout_marginTop="8dp"
-                    android:layout_below="@id/detail_synopsis"
-                    android:alpha=".7"
-                    android:layout_alignParentRight="true"
-                    android:src="@drawable/ic_favorite_black_36dp"/>
-            </RelativeLayout>
-        </android.support.v7.widget.CardView>
+            <ImageView
+                android:id="@+id/detail_watched"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_gravity="left"
+                android:layout_below="@id/detail_synopsis"
+                android:alpha=".7"
+                android:src="@drawable/ic_visibility_black_36dp"/>
+            <ImageView
+                android:id="@+id/detail_favorites"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_marginTop="8dp"
+                android:layout_below="@id/detail_synopsis"
+                android:alpha=".7"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/ic_favorite_black_36dp"/>
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
 
-        <include layout="@layout/content_media_detail" />
+    <include layout="@layout/content_media_detail" />
 
-        <include layout="@layout/content_review_detail" />
+    <include layout="@layout/content_review_detail" />
 
-    </LinearLayout>
-
-</android.support.v4.widget.NestedScrollView>
+</LinearLayout>

@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     private RequestQueue mRequestQueue;
     private CoordinatorLayout mCoordinatorLayout;
     private int mScrollPosition = 0;
+    public boolean mTwoPaneLayout = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +66,12 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         mCoordinatorLayout  = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
         setSupportActionBar(toolbar);
+
+        // Detect whether we are using two pane layout
+        if(findViewById(R.id.movie_detail_container) != null){
+            mTwoPaneLayout = true;
+        }
+
         com.github.clans.fab.FloatingActionButton fabFilterFavorites =
                 (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab_filter_favorites);
         com.github.clans.fab.FloatingActionButton fabFilterPopular =
@@ -128,6 +135,12 @@ public class MainActivity extends AppCompatActivity {
         fabFilterPopular.setOnClickListener(new filterClickListener());
         fabFilterRating.setOnClickListener(new filterClickListener());
 
+        // inflate fragment if we are in two pane layout
+        if(mTwoPaneLayout){
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.movie_detail_container, new MovieDetailFragment())
+                    .commit();
+        }
     }
 
     public boolean isNetworkAvailable(){

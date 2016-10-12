@@ -5,7 +5,7 @@
     android:id="@+id/movie_gridview"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:numColumns="4"
+    android:numColumns="2"
     android:orientation="vertical"
     android:stretchMode="columnWidth"
     android:verticalSpacing="@dimen/grid_spacing_vertical"
