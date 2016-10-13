@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
         fabFilterRating.setOnClickListener(new filterClickListener());
 
         // inflate fragment if we are in two pane layout
-        if(mTwoPaneLayout){
+        if(mTwoPaneLayout && savedInstanceState == null){
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.movie_detail_container, new MovieDetailFragment())
                     .commit();
@@ -281,6 +281,7 @@ public class MainActivity extends AppCompatActivity {
 
         private JSONArray mResultsArray;
         private ArrayList<MovieRecord> mMovieRecordArray;
+        private int selectedItem = -1;
 
         public MovieAdapter() {
             mResultsArray = mResults;
@@ -293,6 +294,10 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(LOG_TAG, "JSON Exception: " + exception);
                 Log.d(LOG_TAG, "Failed to import JSON Parcel");
             }
+        }
+
+        private void setSelectedItem(int position){
+            this.selectedItem = position;
         }
 
         public void setResultsArray(JSONArray results){

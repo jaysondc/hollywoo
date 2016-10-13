@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +31,8 @@ import java.util.ArrayList;
 import shakeup.hollywoo.data.DbHelper;
 import shakeup.hollywoo.data.MovieRecord;
 import shakeup.hollywoo.views.TopCropImageView;
+
+import static android.view.View.GONE;
 
 /**
  * Created by Jayson Dela Cruz on 10/12/2016.
@@ -68,6 +71,12 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment{
         } else {
             // MovieID is in intent extra if passed through an intent
             movieID = getActivity().getIntent().getLongExtra(getString(R.string.EXTRA_MOVIE_ID), 0);
+        }
+
+        // If no MovieID was provided set to Mad Max Fury Road because it's awesome.
+        // Replace this later with a placeholder image.
+        if(movieID == 0){
+            movieID = (long) 76341;
         }
 
         // Instantiate the RequestQueue from the singleton VolleyRequestManager
@@ -164,7 +173,7 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment{
 
     private void updateUI(){
         // Update UI once volley request is complete.
-        // mHeaderImage = (TopCropImageView) mView.findViewById(R.id.detail_app_bar_image);
+        mHeaderImage = (TopCropImageView) getActivity().findViewById(R.id.detail_app_bar_image);
         mTitle = (TextView) mView.findViewById(R.id.detail_title);
         mGenres = (TextView) mView.findViewById(R.id.detail_genres);
         mRating = (TextView) mView.findViewById(R.id.detail_user_rating);
@@ -215,8 +224,10 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment{
         // Get local movie record
         final MovieRecord movieRecord = DbHelper.getMovie(movieID);
 
-        // Update header image
-//        Glide.with(this).load(posterUrl).into(mHeaderImage);
+        // Update header image if we are in single pane mode.
+        if(mHeaderImage != null){
+            Glide.with(this).load(posterUrl).into(mHeaderImage);
+        }
         // Update text fields
         mTitle.setText(title);
         mRating.setText(rating);
@@ -274,6 +285,9 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment{
         });
     }
 
+    /**
+     * Populate the media layout with clickable video thumbnails.
+     */
     private void updateVideos(){
 
         mMediaLayout = (LinearLayout) mView.findViewById(R.id.detail_media_layout);
@@ -283,19 +297,30 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment{
             // Parse movie data
             try {
                 JSONArray jVideos = mVideos.getJSONArray("results");
-                for(int i = 0; i < jVideos.length(); i++){
-                    JSONObject oVideo = jVideos.getJSONObject(i);
-                    movieKeys.add(oVideo.getString("key"));
+                if(jVideos.length() == 0){
+                    // No videos means we don't want to see the media layout.
+                    // In the future there may be more media than just video so this would
+                    // need to change
+                    CardView mediaCardView = (CardView) mView.findViewById(R.id.card_view_media);
+                    mediaCardView.setVisibility(GONE);
+                } else {
+                    for(int i = 0; i < jVideos.length(); i++){
+                        JSONObject oVideo = jVideos.getJSONObject(i);
+                        movieKeys.add(oVideo.getString("key"));
+                        for(String trailerKey : movieKeys){
+                            mMediaLayout.addView(createYouTubeView(trailerKey));
+                        }
+                    }
                 }
             } catch (JSONException error) {
                 Log.d(LOG_TAG, "JSON Error: " + error);
             }
         }
-        for(String trailerKey : movieKeys){
-            mMediaLayout.addView(createYouTubeView(trailerKey));
-        }
     }
 
+    /**
+     * Populate the reviews section with user reviews
+     */
     private void updateReviews(){
         mReviewLayout = (LinearLayout) mView.findViewById(R.id.detail_review_layout);
         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -303,43 +328,50 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment{
         if(mReviews != null) {
             // Parse review data
             try {
-                JSONArray jReviews = mReviews.getJSONArray("results");
-                for(int i = 0; i < jReviews.length(); i++){
-                    JSONObject oReview = jReviews.getJSONObject(i);
+                if(mReviews.getInt("total_results") == 0){
+                    // Set the review card invisible if there are no reviews.
+                    CardView reviewCardView = (CardView) mView.findViewById(R.id.card_view_reviews);
+                    reviewCardView.setVisibility(GONE);
+                } else {
+                    JSONArray jReviews = mReviews.getJSONArray("results");
+                    for(int i = 0; i < jReviews.length(); i++){
+                        JSONObject oReview = jReviews.getJSONObject(i);
 
-                    // Get new review view
-                    LinearLayout reviewView = (LinearLayout) inflater.inflate(
-                            R.layout.detail_item_review, null);
+                        // Get new review view
+                        LinearLayout reviewView = (LinearLayout) inflater.inflate(
+                                R.layout.detail_item_review, null);
 
-                    // Setup author view
-                    final String author = oReview.getString("author");
-                    TextView authorView = (TextView) reviewView.findViewById(R.id.review_author);
-                    authorView.setText(author);
+                        // Setup author view
+                        final String author = oReview.getString("author");
+                        TextView authorView = (TextView) reviewView.findViewById(R.id.review_author);
+                        authorView.setText(author);
 
-                    // Setup content view
-                    String content = oReview.getString("content");
-                    String paragraphs[] = content.split("\\r?\\n");
-                    String firstParagraph = paragraphs[0];
-                    TextView reviewContentView = (TextView) reviewView.findViewById(R.id.review_text);
-                    reviewContentView.setText(firstParagraph);
+                        // Setup content view
+                        String content = oReview.getString("content");
+                        String paragraphs[] = content.split("\\r?\\n");
+                        String firstParagraph = paragraphs[0];
+                        TextView reviewContentView =
+                                (TextView) reviewView.findViewById(R.id.review_text);
+                        reviewContentView.setText(firstParagraph);
 
-                    final String url = oReview.getString("url");
-                    reviewContentView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                            startActivity(intent);
+                        final String url = oReview.getString("url");
+                        reviewContentView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                                startActivity(intent);
+                            }
+                        });
+
+                        mReviewLayout.addView(reviewView);
+
+                        // Add divider
+                        if(i < jReviews.length()-1){
+                            inflater.inflate(R.layout.horizontal_divider, mReviewLayout, true);
                         }
-                    });
-
-                    mReviewLayout.addView(reviewView);
-
-                    // Add divider
-                    if(i < jReviews.length()-1){
-                        inflater.inflate(R.layout.horizontal_divider, mReviewLayout, true);
                     }
-
                 }
+
             } catch (JSONException error) {
                 Log.d(LOG_TAG, "JSON Error: " + error);
             }
