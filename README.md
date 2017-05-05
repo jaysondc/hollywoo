@@ -4,14 +4,18 @@ This app uses The Movie Database API. Get an api key from
 
 >https://www.themoviedb.org/
 
-Add the line
->movieDbApiKey="{your_api_key}"
+### Usage
 
-to a gradle.properties file in the root directory.
+Create a *gradle.properties* file in the root directory and add the line
+>movieDbApiKey="{your_api_key}"
 
 MinSdk is 16 (4.1 Jellybean)
 
 TargetSdk is 24 (7.0 Nougat)
+
+*Disable Instant Run in Android Studio before Installation*
+
+Unfortunately Sugar ORM is incompatible with the "Instant Run" feature of Android Studio 2.0+.
 
 ### Don't you mean Hollywood?
 [No](http://vignette1.wikia.nocookie.net/bojackhorseman/images/4/4b/Hollywoo-ottoman-bojack.jpg/revision/latest?cb=20161031213504).
